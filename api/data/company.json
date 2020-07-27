@@ -1,0 +1,57 @@
+{
+    "company": {
+        "data": [
+            {
+                "id": 1,
+                "name": "Peperone",
+                "description": "Servimos almoço ao peso, jantar a la carte, pizzas, massas, filés, aves e peixes. Ambiente aconchegante com varanda ao ar livre.",
+                "contact": {
+                    "tel": "1236320908",
+                    "cel": "1299989899",
+                    "email": "peperone@peperone.com.br"
+                },
+                "address": {
+                    "cep": 1111111,
+                    "description": "Rua XV de Novembro, 348 - Centro Taubate/SP"
+                },
+                "images": [
+                    {
+                        "id": 1,
+                        "base64": ""
+                    }
+                ],
+                "know_more": [
+                    {
+                        "description": ""
+                    }
+                ],
+                "information": {
+                    "schedule": [
+                        {
+                            "day_week_start": "Segunda",
+                            "day_week_end": "Sexta",
+                            "hour_start": "11:30",
+                            "hour_end": "18:00"
+                        },
+                        {
+                            "day_week_start": "Sábados",
+                            "day_week_end": "Sábados",
+                            "hour_start": "11:30",
+                            "hour_end": "15:00"
+                        }
+                    ],
+                    "redes": {
+                        "facebook": "",
+                        "instagran": "",
+                        "twitter": ""
+                    },
+                    "payment": {
+                        "credit": true,
+                        "money": true,
+                        "debit": true
+                    }
+                }
+            }
+        ]
+    }
+}

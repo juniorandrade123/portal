@@ -1,0 +1,20 @@
+{
+    "users": {
+        "data": [
+            {
+                "id": "5da9ea674234635bdff45c02",
+                "name": "Junior Andrade",
+                "email": "junior.andrade@triasoftware.com.br",
+                "createdAt": "2020-07-10",
+                "password": "Tria@123"
+            },
+            {
+                "id": "5da9ea674234635bdff45c21",
+                "name": "Charles Guedes",
+                "email": "charles.guedes@triasoftware.com.br",
+                "createdAt": "2020-07-11",
+                "password": "Tria@123"
+            }
+        ]
+    }
+}
