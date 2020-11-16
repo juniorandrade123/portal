@@ -18,6 +18,8 @@
     "express": "^4.17.1",
     "firebase": "^7.16.0",
     "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.10.14",
     "util": "^0.12.3"
   }
 }

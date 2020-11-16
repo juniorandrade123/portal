@@ -1,8 +1,12 @@
 const jwt = require('jsonwebtoken');
 const util = require('util');
 const firebase = require('firebase');
-const configFirebase = require('../../config/firebase-config');
 
+const mongo = require('mongodb').MongoClient
+const url = "mongodb+srv://classificae-user:Junior381414@cluster0.ahqaj.mongodb.net/classificae?retryWrites=true&w=majority";
+
+
+const configFirebase = require('../../config/firebase-config');
 if (!firebase.apps.length) {
     firebase.initializeApp(configFirebase);
 }
@@ -122,15 +126,24 @@ controller.companys = (req, res, next) => {
 };
 
 controller.listCompanys = (req, res, next) => {
-    try {
-        usersDB.once('value', function (snap) {
-            let result = [];
-            snap.forEach(element => {
-                result.push(element);
-            });
-            res.status(200).json({ "company": result });
-            usersDB.off("value");
+    try {        
+       
+        mongo.connect(url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+          }, (err, client) => {
+          if (err) {
+            console.error(err)
+            return
+          } else {
+            const db = client.db('classificae')
+            const collection = db.collection('company')
+            collection.find().toArray((err, items) => {
+                res.status(200).json({'company': items});
+              });
+          }  
         })
+
     } catch (error) {
 
     }
