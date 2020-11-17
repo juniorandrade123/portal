@@ -1,12 +1,9 @@
 
 const jwt = require('jsonwebtoken');
 const util = require('util');
-const firebase = require('firebase');
-const configFirebase = require('../../config/firebase-config');
+const mongo = require('mongodb').MongoClient
+const url = "mongodb+srv://classificae-user:Junior381414@cluster0.ahqaj.mongodb.net/classificae?retryWrites=true&w=majority";
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(configFirebase);
-}
 
 function verifyJWT(req, res, next) {
     var token = req.headers['x-access-token'];
@@ -20,54 +17,38 @@ function verifyJWT(req, res, next) {
     });
 }
 
-const usersDB = firebase.database().ref('users');
-
 const controller = {};
-
-controller.users = (req, res, next) => {
-
-    let valid = verifyJWT(req, res, next);
-
-    if (!util.isNullOrUndefined(valid)) {
-        if (!valid.auth) {
-            res.status(200).json(valid);
-        }
-    }
-
-    usersDB.once('value', function (snap) {
-        res.status(200).json({ "users": snap.val() });
-        usersDB.off("value");
-    })
-};
 
 controller.login = (req, res) => {
 
-    let consulting = Object;
-
-    usersDB.once('value', function (snap) {
-        try {
-
-            consulting = snap.val()['data'].find(a => a.email === req.body.email && a.password === req.body.password);
-
-            if (!util.isNullOrUndefined(consulting)) {
-
-                const id = consulting.id;
-
-                let token = jwt.sign({ id }, 'CJ', {
-                    expiresIn: 300 // expires in 5min
-                });
-
-                res.status(200).send({ auth: true, token: token, user: { id: id, name: consulting.name } });
-            }
-
-            res.status(401).send('Login inválido!');
-            usersDB.off("value");
-        }
-
-        catch (error) {
-            console.log(error);
-        }
-    })
+    try {
+        mongo.connect(url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+          }, (err, client) => {
+          if (err) {
+            console.error(err)
+            return
+          } else {
+            const db = client.db('classificae')
+            const collection = db.collection('company')
+            collection.find({'contact.email': req.body.email, 'password': req.body.password}).toArray((err, items) => {
+                if (items.length > 0) {
+                    let id = items[0]['_id'];
+                    let token = jwt.sign({ id }, 'CJ', {
+                        expiresIn: 300 // expires in 5min
+                    });
+    
+                    res.status(200).send({ auth: true, token: token, user: { id: id, name: items[0].name, logo: items[0].image_logo } });
+                } else {
+                    res.status(401).send({ auth: false, message: 'E-mail e/ou senha estão incorretos'});
+                }
+            });
+          }  
+        })
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 module.exports = controller;
