@@ -1,15 +1,7 @@
 const jwt = require('jsonwebtoken');
-const util = require('util');
-const firebase = require('firebase');
 
 const mongo = require('mongodb').MongoClient
 const url = "mongodb+srv://classificae-user:Junior381414@cluster0.ahqaj.mongodb.net/classificae?retryWrites=true&w=majority";
-
-
-const configFirebase = require('../../config/firebase-config');
-if (!firebase.apps.length) {
-    firebase.initializeApp(configFirebase);
-}
 
 function verifyJWT(req, res, next) {
     try {
@@ -27,103 +19,7 @@ function verifyJWT(req, res, next) {
     }
 }
 
-const usersDB = firebase.database().ref('company');
 const controller = {};
-
-controller.setCompany = (req, res, next) => {
-    try {
-
-        let valid = verifyJWT(req, res, next);
-        if (!util.isNullOrUndefined(valid)) {
-            if (!valid.auth) {
-                res.status(200).json(valid);
-            }
-        }
-
-        usersDB.push(
-            {
-                "id": 2,
-                "name": "Pizza 1",
-                "description": "Servimos almoço ao peso, jantar a la carte, pizzas, massas, filés, aves e peixes. Ambiente aconchegante com varanda ao ar livre.",
-                "contact": {
-                    "tel": "1236320908",
-                    "cel": "1299989899",
-                    "email": "peperone@peperone.com.br"
-                },
-                "address": {
-                    "cep": 1111111,
-                    "description": "Rua XV de Novembro, 348 - Centro Taubate/SP"
-                },
-                "images": [
-                    {
-                        "id": 1,
-                        "base64": ""
-                    }
-                ],
-                "know_more": [
-                    {
-                        "description": ""
-                    }
-                ],
-                "information": {
-                    "schedule": [
-                        {
-                            "day_week_start": "Segunda",
-                            "day_week_end": "Sexta",
-                            "hour_start": "11:30",
-                            "hour_end": "18:00"
-                        },
-                        {
-                            "day_week_start": "Sábados",
-                            "day_week_end": "Sábados",
-                            "hour_start": "11:30",
-                            "hour_end": "15:00"
-                        }
-                    ],
-                    "redes": {
-                        "facebook": "",
-                        "instagran": "",
-                        "twitter": ""
-                    },
-                    "payment": {
-                        "credit": true,
-                        "money": true,
-                        "debit": true
-                    }
-                }
-            }
-        )
-
-        res.status(200).json(true);
-
-    } catch (error) {
-
-    }
-}
-
-controller.companys = (req, res, next) => {
-
-    try {
-        let valid = verifyJWT(req, res, next);
-
-        if (!util.isNullOrUndefined(valid)) {
-            if (!valid.auth) {
-                res.status(200).json(valid);
-            }
-        }
-
-        usersDB.once('value', function (snap) {
-            let result = [];
-            snap.forEach(element => {
-                result.push(element);
-            });
-            res.status(200).json({ "company": result });
-            usersDB.off("value");
-        })
-    } catch (error) {
-
-    }
-};
 
 controller.listCompanys = (req, res, next) => {
     try {        
@@ -136,9 +32,9 @@ controller.listCompanys = (req, res, next) => {
             console.error(err)
             return
           } else {
-            const db = client.db('classificae')
-            const collection = db.collection('company')
-            collection.find().toArray((err, items) => {
+            const db = client.db('classificae');
+            const collection = db.collection('company');
+            collection.find({}, { projection: { password: 0 } }).toArray((err, items) => {
                 res.status(200).json({'company': items});
               });
           }  
