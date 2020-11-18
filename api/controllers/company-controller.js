@@ -149,5 +149,33 @@ controller.listCompanys = (req, res, next) => {
     }
 }
 
+controller.CreateCompany = (req, res, err) => {
+    try {
+
+        mongo.connect(url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+          }, (err, client) => {
+          if (err) {
+            return  res.status(500).json({message:"Erro ao salvar."});
+          } else {
+              
+            const db = client.db('classificae')
+            const collection = db.collection('company')
+
+            collection.insertOne(req.body, function(errorIsent){
+                if(errorIsent) {
+                    res.status(500).json({message:"Erro ao salvar."});
+                    throw errorIsent;
+                }
+                client.close();
+                res.status(200).json({message:"Cadastrado com sucesso."});
+            });
+          }  
+        })
+    } catch (err) {
+        throw err;
+    }
+}
 
 module.exports = controller;

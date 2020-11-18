@@ -5,7 +5,7 @@ module.exports = app => {
         .get(controller.companys);
     app.route('/api/v1/listCompanys')
         .get(controller.listCompanys);
-    app.route('/api/v1/setCompany')
-        .post(controller.setCompany);
+    app.route('/api/v1/CreateCompany')
+        .post(controller.CreateCompany);
 
 }
