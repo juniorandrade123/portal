@@ -125,9 +125,9 @@ controller.listCompanys = (req, res, next) => {
             console.error(err)
             return
           } else {
-            const db = client.db('classificae')
-            const collection = db.collection('company')
-            collection.find().toArray((err, items) => {
+            const db = client.db('classificae');
+            const collection = db.collection('company');
+            collection.find({}, { projection: { password: 0 } }).toArray((err, items) => {
                 res.status(200).json({'company': items});
               });
           }  
