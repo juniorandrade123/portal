@@ -68,18 +68,16 @@ controller.CreateUpdateCompany = (req, res, err) => {
 controller.GetId = (req, res, err) => {
     try {
         //TODO:DESCOMENTAR CÓDIGO ABAIXO
-        // if(!verifyUserLog(req, res)){
-        //     return res.status(500).json(usuarioNaoLogado);
-        // }
+        if(!verifyUserLog(req, res)){
+            return res.status(500).json(usuarioNaoLogado);
+        }
+
         return GetIdCompany(req, res, err);
         
-
     }catch (err) {
         throw err;
     }
 }
-
-//metodo de inativar, não será excluido no banco de dados
 
 //### METODOS AUXILIARES
 
@@ -113,7 +111,6 @@ function verifyUserLog(req, res, err, next){
         }
     }
 }
-
 
 async function GetIdCompany(req, res, err){
 try{
@@ -164,16 +161,10 @@ async function update(req, res, client){
 
     console.log("update: ")
     //TODO:DESCOMENTAR CODIGO A BAIXO
-    // if(!verifyUserLog(req, res, err)){
-    //     console.log("verifyUserLog:");
-    //     return res.status(500).json(usuarioNaoLogado);
-    // }
-
-    //  var objCompany = await GetIdCompany(req, res, err);
-    //  console.log("objCompany: " + objCompany)
-
-     
-    // dbo.collection("customers").updateOne(myquery, newvalues, function(err, res) {
+    if(!verifyUserLog(req, res, err)){
+        console.log("verifyUserLog:");
+        return res.status(500).json(usuarioNaoLogado);
+    }
 
     const db = client.db('classificae')
     const collection = db.collection('company')
@@ -195,15 +186,3 @@ async function update(req, res, client){
 }
 
 module.exports = controller;
-
-
-
-// var newCompany = { $set: {objCompany} };
-// collection.updateOne(objCompany, newCompany, function(errorUpdate){
-//     if(errorUpdate) {
-//         res.status(500).json({message:"Erro ao alterar."});
-//         throw errorUpdate;
-//     }
-//     client.close();
-//     res.status(200).json({message:"Alterado com sucesso."});
-// });
