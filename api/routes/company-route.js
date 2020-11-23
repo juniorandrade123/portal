@@ -3,7 +3,8 @@ module.exports = app => {
 
     app.route('/api/v1/listCompanys')
         .get(controller.listCompanys);
-    app.route('/api/v1/CreateCompany')
-        .post(controller.CreateCompany);
-
+    app.route('/api/v1/CreateUpdateCompany')
+        .post(controller.CreateUpdateCompany);
+    app.route('/api/v1/GetId/:id')
+        .get(controller.GetId);
 }
