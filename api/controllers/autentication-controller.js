@@ -36,7 +36,7 @@ controller.login = (req, res) => {
                         let id = items[0]._id;
 
                         let token = jwt.sign({ id }, 'CJ', {
-                            expiresIn: 300 // expires in 5min
+                            expiresIn: 50000 // expires in 5min
                         });
 
                         res.status(200).send({ auth: true, token: token, user: { id: id, name: items[0].name, logo: items[0].image_logo } });

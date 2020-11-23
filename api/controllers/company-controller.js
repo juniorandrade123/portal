@@ -86,29 +86,29 @@ function verifyJWT(req, res, next) {
         var token = req.headers['x-access-token'];
         if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
 
-        jwt.verify(token, 'CJ', function (err, decoded) {
+        jwt.verify(token, 'CJ', function (err, decoded) { 
+            console.log(req.params.id === decoded.id);
+            console.log(decoded);
             if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
 
             // se tudo estiver ok, salva no request para uso posterior
-            req.userId = decoded.id;
+            return req.params.id === decoded.id;
         });
     } catch (error) {
 
     }
 }
 
-function verifyUserLog(req, res, err, next){
+async function verifyUserLog(req, res, err, next){
 
     if(err){
         console.error(err)
         return
     }
 
-    let valid = verifyJWT(req, res, next);
+    let valid = await verifyJWT(req, res, next);
     if (!util.isNullOrUndefined(valid)) {
-        if (!valid.auth) {
-            res.status(200).json(valid);
-        }
+        return valid.auth;
     }
 }
 
