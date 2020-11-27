@@ -69,9 +69,9 @@ controller.CreateUpdateCompany = (req, res, err) => {
 controller.GetId = (req, res, err) => {
     try {
         //TODO:DESCOMENTAR CÓDIGO ABAIXO
-        // if(!verifyUserLog(req, res)){
-        //     return res.status(500).json(usuarioNaoLogado);
-        // }
+        if(!verifyUserLog(req, res)){
+            return res.status(500).json(usuarioNaoLogado);
+        }
 
         return GetIdCompany(req, res, err);
         
@@ -162,10 +162,10 @@ async function update(req, res, client){
 
     console.log("update: ")
     //TODO:DESCOMENTAR CODIGO A BAIXO
-    // if(!verifyUserLog(req, res, err)){
-    //     console.log("verifyUserLog:");
-    //     return res.status(500).json(usuarioNaoLogado);
-    // }
+    if(!verifyUserLog(req, res, err)){
+        console.log("verifyUserLog:");
+        return res.status(500).json(usuarioNaoLogado);
+    }
 
     const db = client.db('classificae')
     const collection = db.collection('company')
@@ -177,7 +177,7 @@ async function update(req, res, client){
         myquery, newvalues,
         function(errorUpdate, result){
 
-        let status = result.result.nModified === 0 ? false : true;
+        let status = result.result.nModified === 0 ? false : true;        
 
         if(errorUpdate) {
             res.status(500).json({message: error_changing});
