@@ -28,8 +28,33 @@ controller.listCompanys = (req, res, next) => {
           } else {
             const db = client.db('classificae');
             const collection = db.collection('company');
-            collection.find({}, { projection: { password: 0 } }).toArray((err, items) => {
-                res.status(200).json({'company': items});
+            collection.find({}, { projection: { password: 0} }).toArray((err, items) => {
+                res.status(200).json({'company': items.filter(x => x.active)});
+              });
+          }  
+        })
+
+    } catch (error) {
+
+    }
+}
+
+//METODO PARA RETORNAR SOMENTE AS EMPRESAS QUE PAGAM PARA FICAR NO TOPO DO PORTAL
+controller.listGoldCompanys = (req, res, next) => {
+    try {        
+       
+        mongo.connect(url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+          }, (err, client) => {
+          if (err) {
+            console.error(err)
+            return
+          } else {
+            const db = client.db('classificae');
+            const collection = db.collection('company');
+            collection.find({}, { projection: { password: 0} }).toArray((err, items) => {
+                res.status(200).json({'company': items.filter(x => x.active && x.gold)});
               });
           }  
         })
