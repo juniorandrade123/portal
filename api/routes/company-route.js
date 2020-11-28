@@ -7,4 +7,6 @@ module.exports = app => {
         .post(controller.CreateUpdateCompany);
     app.route('/api/v1/GetId/:id')
         .get(controller.GetId);
+    app.route('/api/v1/like/:id')
+        .get(controller.like);
 }
