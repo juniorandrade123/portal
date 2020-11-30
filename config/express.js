@@ -13,7 +13,8 @@ module.exports = () => {
     app.set('port', process.env.PORT || config.get('server.port'));
 
     // MIDDLEWARES    
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({limit: '100mb'}));
+    app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
     app.use(cors());
 
     // ENDPOINTS
