@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const util = require('util');
 const firebase = require('firebase');
+const { ObjectID } = require('mongodb');
 const objectId = require('mongodb').ObjectId;
 
 const mongo = require('mongodb').MongoClient
@@ -28,7 +29,7 @@ controller.listCompanys = (req, res, next) => {
           } else {
             const db = client.db('classificae');
             const collection = db.collection('company');
-            collection.find({}, { projection: { password: 0 } }).toArray((err, items) => {
+            collection.find({"active": true}, { projection: { password: 0} }).toArray((err, items) => {
                 res.status(200).json({'company': items});
               });
           }  
@@ -52,7 +53,7 @@ controller.CreateUpdateCompany = (req, res, err) => {
               
             //console.log("req.body.id :" + req.body.id);
 
-            if(typeof req.body._id === 'undefined'){
+            if(typeof req.body.id === 'undefined'){
                 insert(req, res, client)
             }
             else{
@@ -169,19 +170,23 @@ async function update(req, res, client){
     const db = client.db('classificae')
     const collection = db.collection('company')
 
-    var myquery = { _id: req.body._id };
+    var myquery = { _id: ObjectID(req.body.id) };
     var newvalues = { $set: req.body };
     
     collection.updateOne(
         myquery, newvalues,
-        function(errorUpdate){
+        function(errorUpdate, result){
+
+        let status = result.result.nModified === 0 ? false : true;        
 
         if(errorUpdate) {
             res.status(500).json({message: error_changing});
             throw errorUpdate;
         }
         client.close();
-        res.status(200).json({message:changed_success});
+
+        res.status(200).json({message: status ? changed_success : error_changing, status: status});
+
     });
 }
 
