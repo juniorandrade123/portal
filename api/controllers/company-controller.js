@@ -29,7 +29,7 @@ controller.listCompanys = (req, res, next) => {
           } else {
             const db = client.db('classificae');
             const collection = db.collection('company');
-            collection.find({}, { projection: { password: 0 } }).toArray((err, items) => {
+            collection.find({"active": true}, { projection: { password: 0} }).toArray((err, items) => {
                 res.status(200).json({'company': items});
               });
           }  
@@ -69,9 +69,9 @@ controller.CreateUpdateCompany = (req, res, err) => {
 controller.GetId = (req, res, err) => {
     try {
         //TODO:DESCOMENTAR CÓDIGO ABAIXO
-        if(!verifyUserLog(req, res)){
-            return res.status(500).json(usuarioNaoLogado);
-        }
+        // if(!verifyUserLog(req, res)){
+        //     return res.status(500).json(usuarioNaoLogado);
+        // }
 
         return GetIdCompany(req, res, err);
         
@@ -194,40 +194,36 @@ async function verifyUserLog(req, res, err, next){
     }
 }
 
-async function GetIdCompany(req, res, err){
-    try{
+async function GetIdCompany(req, res, err) {
+    try {
         //console.log("GetIdCompany: ");
         let returnObj;
         //console.log("req.params._id)" + req.params.id);
         await mongo.connect(url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            }, (err, client) => {
-                if (err) {
-                    return  res.status(500).json({message:error_saving});
-                }else{
-                    const db = client.db('classificae')
-                    const collection = db.collection('company')
-    
-                      collection.find({"_id" : new objectId(req.params.id)}).toArray(function(error, result){
-                        if(error){
-                            return res.json(error);
-                        }else{
-                            //console.log("RESULT: " + result);
-                            //return res.json(result);
-                            returnObj = result;
-                            client.close();
-                            //console.log("returnObj: " + returnObj);
-                        }
-                    });
-                }
-                //console.log("returnObj1: " + returnObj);
-                return returnObj;
-            })
-        } catch (err) {
-            throw err;
-        }
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        }, (err, client) => {
+            if (err) {
+                return res.status(500).json({ message: error_saving });
+            } else {
+                const db = client.db('classificae')
+                const collection = db.collection('company')
+
+                collection.find({ "_id": new objectId(req.params.id) }).toArray(function (error, result) {
+                    if (error) {
+                        return res.json(error);
+                    } else {
+                        //console.log("RESULT: " + result);                        
+                        client.close();
+                        return res.json(result);                        
+                    }                    
+                });
+            }
+        })
+    } catch (err) {
+        throw err;
     }
+}
 
 function insert(req, res, client){
 
