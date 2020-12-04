@@ -80,11 +80,11 @@ controller.GetId = (req, res, err) => {
     }
 }
 
-controller.like = (req, res, err) => {
+controller.like = (req, res, err_request) => {
     try {
 
          //TODO:DESCOMENTAR CODIGO A BAIXO
-        if(!verifyUserLog(req, res, err)){
+        if(!verifyUserLog(req, res, err_request)){
             console.log("verifyUserLog:");
             return res.status(500).json(usuarioNaoLogado);
         }
@@ -97,33 +97,35 @@ controller.like = (req, res, err) => {
             return  res.status(500).json({message: error_saving});
           } else {
             if(typeof req.body.id !== 'undefined'){
-                //let company = GetIdCompany(req, res, err)
 
-                const promise = GetIdCompany(req, res, err); 
-                promise.then(function(result) {
-                    console.log('promisse:', result)
-                });
-
+                const db = client.db('classificae')
+                const collection = db.collection('company')       
                 
+                collection.find({"_id" : new objectId(req.body.id)}).toArray(function(error, result){
+                    if(error){
+                        return res.json(error);
+                    }else{                        
+                        if(result !== null && result !== 'undefined'){
+                            console.log('CHANGE');
+                            //console.log('req.body.like: ' + req.body.like)
+                            let newvalue = req.body.like === 0 ? -1 : 1;
+                            //console.log('newvalue: ' + newvalue)
+                            if(newvalue === 1){
+                                result[0].like = result[0].like + 1;
+                                //console.log('sumLike: ' + sumLike)
+                                update(req, res, client, result[0]);
+                            }else{
+                                result[0].like = result[0].like - 1;
+                                //console.log('desLike: ' + desLike)
+                                update(req, res, client, result[0]);
+                            }
+                        }                     
+                    }
+                });
 
                 //console.log("companylike: " + company);
 
-                    // if(company !== null && company !== 'undefined'){
                     
-                    //     //console.log('req.body.like: ' + req.body.like)
-                    //     let newvalue = req.body.like === 0 ? -1 : 1;
-                    //     //console.log('newvalue: ' + newvalue)
-                    //     if(newvalue === 1){
-                    //         let sumLike = typeof company.like + 1;
-                    //         //console.log('sumLike: ' + sumLike)
-                    //         update(req, res, err, sumLike);
-                    //     }else{
-                    //         let desLike = typeof company.like - 1;
-                    //         //console.log('desLike: ' + desLike)
-                    //         update(req, res, err, desLike);
-                    //     }
-    
-                    // }
 
                 // GetIdCompany(req, res, err).then(function(company){
                 //     console.log('company: ' + company)
@@ -242,20 +244,22 @@ function insert(req, res, client){
     });
 }
 
-async function update(req, res, client, valueLike){
+async function update(req, res, client, objLike){
+
+    console.log(objLike);
 
     //console.log("valueLike: " + valueLike)
     //TODO:DESCOMENTAR CODIGO A BAIXO
-    if(!verifyUserLog(req, res, err)){
-        console.log("verifyUserLog:");
-        return res.status(500).json(usuarioNaoLogado);
-    }
+    // if(!verifyUserLog(req, res, err)){
+    //     console.log("verifyUserLog:");
+    //     return res.status(500).json(usuarioNaoLogado);
+    // }
 
     const db = client.db('classificae')
     const collection = db.collection('company')
 
     var myquery = { _id: ObjectID(req.body.id) };
-    var newvalues = valueLike === 'undefined' ? { $set: req.body } : { $set: valueLike };
+    var newvalues = objLike === 'undefined' ? { $set: req.body } : { $set: objLike };
     
     collection.updateOne(
         myquery, newvalues,
