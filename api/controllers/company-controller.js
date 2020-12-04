@@ -80,6 +80,85 @@ controller.GetId = (req, res, err) => {
     }
 }
 
+controller.like = (req, res, err) => {
+    try {
+
+         //TODO:DESCOMENTAR CODIGO A BAIXO
+        if(!verifyUserLog(req, res, err)){
+            console.log("verifyUserLog:");
+            return res.status(500).json(usuarioNaoLogado);
+        }
+
+        mongo.connect(url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+          }, (err, client) => {
+          if (err) {
+            return  res.status(500).json({message: error_saving});
+          } else {
+            if(typeof req.body.id !== 'undefined'){
+                //let company = GetIdCompany(req, res, err)
+
+                const promise = GetIdCompany(req, res, err); 
+                promise.then(function(result) {
+                    console.log('promisse:', result)
+                });
+
+                
+
+                //console.log("companylike: " + company);
+
+                    // if(company !== null && company !== 'undefined'){
+                    
+                    //     //console.log('req.body.like: ' + req.body.like)
+                    //     let newvalue = req.body.like === 0 ? -1 : 1;
+                    //     //console.log('newvalue: ' + newvalue)
+                    //     if(newvalue === 1){
+                    //         let sumLike = typeof company.like + 1;
+                    //         //console.log('sumLike: ' + sumLike)
+                    //         update(req, res, err, sumLike);
+                    //     }else{
+                    //         let desLike = typeof company.like - 1;
+                    //         //console.log('desLike: ' + desLike)
+                    //         update(req, res, err, desLike);
+                    //     }
+    
+                    // }
+
+                // GetIdCompany(req, res, err).then(function(company){
+                //     console.log('company: ' + company)
+
+                //     if(company !== null && company !== 'undefined'){
+                    
+                //         console.log('req.body.like: ' + req.body.like)
+                //         let newvalue = req.body.like === 0 ? -1 : 1;
+                //         console.log('newvalue: ' + newvalue)
+                //         if(newvalue === 1){
+                //             let sumLike = typeof company.like + 1;
+                //             console.log('sumLike: ' + sumLike)
+                //             update(req, res, err, sumLike);
+                //         }else{
+                //             let desLike = typeof company.like - 1;
+                //             console.log('desLike: ' + desLike)
+                //             update(req, res, err, desLike);
+                //         }
+    
+                //     }
+                // });
+               
+                
+
+            }
+            else{
+                return  res.status(500).json({message: error_saving});
+            }
+          }  
+        })
+    } catch (err) {
+        throw err;
+    }
+
+}
 //### METODOS AUXILIARES
 
 function verifyJWT(req, res, next) {
@@ -114,34 +193,39 @@ async function verifyUserLog(req, res, err, next){
 }
 
 async function GetIdCompany(req, res, err){
-try{
+    try{
+        //console.log("GetIdCompany: ");
+        let returnObj;
+        //console.log("req.params._id)" + req.params.id);
+        await mongo.connect(url, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            }, (err, client) => {
+                if (err) {
+                    return  res.status(500).json({message:error_saving});
+                }else{
+                    const db = client.db('classificae')
+                    const collection = db.collection('company')
     
-    //console.log("req.params._id)" + req.params.id);
-    await mongo.connect(url, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        }, (err, client) => {
-            if (err) {
-                return  res.status(500).json({message:error_saving});
-            }else{
-                const db = client.db('classificae')
-                const collection = db.collection('company')
-
-                 collection.find({"_id" : new objectId(req.params.id)}).toArray(function(error, result){
-                    if(error){
-                        return res.json(error);
-                    }else{
-                        //console.log("RESULT: " + result);
-                        return res.json(result);
-                        client.close();
-                    }
-                });
-            }
-        })
-    } catch (err) {
-        throw err;
+                      collection.find({"_id" : new objectId(req.params.id)}).toArray(function(error, result){
+                        if(error){
+                            return res.json(error);
+                        }else{
+                            //console.log("RESULT: " + result);
+                            //return res.json(result);
+                            returnObj = result;
+                            client.close();
+                            //console.log("returnObj: " + returnObj);
+                        }
+                    });
+                }
+                //console.log("returnObj1: " + returnObj);
+                return returnObj;
+            })
+        } catch (err) {
+            throw err;
+        }
     }
-}
 
 function insert(req, res, client){
 
@@ -158,9 +242,9 @@ function insert(req, res, client){
     });
 }
 
-async function update(req, res, client){
+async function update(req, res, client, valueLike){
 
-    console.log("update: ")
+    //console.log("valueLike: " + valueLike)
     //TODO:DESCOMENTAR CODIGO A BAIXO
     if(!verifyUserLog(req, res, err)){
         console.log("verifyUserLog:");
@@ -171,7 +255,7 @@ async function update(req, res, client){
     const collection = db.collection('company')
 
     var myquery = { _id: ObjectID(req.body.id) };
-    var newvalues = { $set: req.body };
+    var newvalues = valueLike === 'undefined' ? { $set: req.body } : { $set: valueLike };
     
     collection.updateOne(
         myquery, newvalues,
@@ -189,5 +273,7 @@ async function update(req, res, client){
 
     });
 }
+
+
 
 module.exports = controller;
