@@ -105,50 +105,47 @@ controller.like = (req, res, err_request) => {
                     if(error){
                         return res.json(error);
                     }else{                        
+
                         if(result !== null && result !== 'undefined'){
-                            console.log('CHANGE');
-                            //console.log('req.body.like: ' + req.body.like)
-                            let newvalue = req.body.like === 0 ? -1 : 1;
-                            //console.log('newvalue: ' + newvalue)
-                            if(newvalue === 1){
-                                result[0].like = result[0].like + 1;
-                                //console.log('sumLike: ' + sumLike)
-                                update(req, res, client, result[0]);
-                            }else{
-                                result[0].like = result[0].like - 1;
-                                //console.log('desLike: ' + desLike)
+                            if (result[0].user_like !== undefined) {
+                                let consultingUser = result[0].user_like.filter(a => a.email === req.body.email);
+                                if (consultingUser.length === 0) {
+                                    result[0].user_like.push({
+                                        email: req.body.email,
+                                        comments: {
+                                            description: '',
+                                            status: false
+                                        },
+                                        rank: 0,
+                                        like: 1
+                                    });
+                                    update(req, res, client, result[0]);
+                                } else {
+                                    let newvalue = consultingUser[0].like === 1 ? 0 : 1;
+                                    if (newvalue === 1) {
+                                        consultingUser[0].like = consultingUser[0].like + 1;
+                                        update(req, res, client, result[0]);
+                                    } else {
+                                        consultingUser[0].like = consultingUser[0].like - 1;
+                                        update(req, res, client, result[0]);
+                                    }
+                                }
+                            } else {
+                                result[0].user_like = [];
+                                result[0].user_like.push({
+                                    email: req.body.email,
+                                    comments: {
+                                        description: '',
+                                        status: false
+                                    },
+                                    rank: 0,
+                                    like: 1
+                                });
                                 update(req, res, client, result[0]);
                             }
-                        }                     
+                        }                   
                     }
                 });
-
-                //console.log("companylike: " + company);
-
-                    
-
-                // GetIdCompany(req, res, err).then(function(company){
-                //     console.log('company: ' + company)
-
-                //     if(company !== null && company !== 'undefined'){
-                    
-                //         console.log('req.body.like: ' + req.body.like)
-                //         let newvalue = req.body.like === 0 ? -1 : 1;
-                //         console.log('newvalue: ' + newvalue)
-                //         if(newvalue === 1){
-                //             let sumLike = typeof company.like + 1;
-                //             console.log('sumLike: ' + sumLike)
-                //             update(req, res, err, sumLike);
-                //         }else{
-                //             let desLike = typeof company.like - 1;
-                //             console.log('desLike: ' + desLike)
-                //             update(req, res, err, desLike);
-                //         }
-    
-                //     }
-                // });
-               
-                
 
             }
             else{
@@ -241,8 +238,6 @@ function insert(req, res, client){
 }
 
 async function update(req, res, client, objLike){
-
-    console.log(objLike);
 
     //console.log("valueLike: " + valueLike)
     //TODO:DESCOMENTAR CODIGO A BAIXO
