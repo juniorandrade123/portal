@@ -9,4 +9,6 @@ module.exports = app => {
         .get(controller.GetId);
     app.route('/api/v1/like')
         .post(controller.like);
+    app.route('/api/v1/listGoldCompanys')
+        .get(controller.listGoldCompanys);
 }
