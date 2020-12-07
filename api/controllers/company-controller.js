@@ -105,6 +105,84 @@ controller.GetId = (req, res, err) => {
     }
 }
 
+controller.like = (req, res, err_request) => {
+    try {
+
+         //TODO:DESCOMENTAR CODIGO A BAIXO
+        if(!verifyUserLog(req, res, err_request)){
+            console.log("verifyUserLog:");
+            return res.status(500).json(usuarioNaoLogado);
+        }
+
+        mongo.connect(url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+          }, (err, client) => {
+          if (err) {
+            return  res.status(500).json({message: error_saving});
+          } else {
+            if(typeof req.body.id !== 'undefined'){
+
+                const db = client.db('classificae')
+                const collection = db.collection('company')       
+                
+                collection.find({"_id" : new objectId(req.body.id)}).toArray(function(error, result){
+                    if(error){
+                        return res.json(error);
+                    }else{                        
+
+                        if(result !== null && result !== 'undefined'){
+                            if (result[0].user_like !== undefined) {
+                                let consultingUser = result[0].user_like.filter(a => a.email === req.body.email);
+                                if (consultingUser.length === 0) {
+                                    result[0].user_like.push({
+                                        email: req.body.email,
+                                        comments: {
+                                            description: '',
+                                            status: false
+                                        },
+                                        rank: 0,
+                                        like: 1
+                                    });
+                                    update(req, res, client, result[0]);
+                                } else {
+                                    let newvalue = consultingUser[0].like === 1 ? 0 : 1;
+                                    if (newvalue === 1) {
+                                        consultingUser[0].like = consultingUser[0].like + 1;
+                                        update(req, res, client, result[0]);
+                                    } else {
+                                        consultingUser[0].like = consultingUser[0].like - 1;
+                                        update(req, res, client, result[0]);
+                                    }
+                                }
+                            } else {
+                                result[0].user_like = [];
+                                result[0].user_like.push({
+                                    email: req.body.email,
+                                    comments: {
+                                        description: '',
+                                        status: false
+                                    },
+                                    rank: 0,
+                                    like: 1
+                                });
+                                update(req, res, client, result[0]);
+                            }
+                        }                   
+                    }
+                });
+
+            }
+            else{
+                return  res.status(500).json({message: error_saving});
+            }
+          }  
+        })
+    } catch (err) {
+        throw err;
+    }
+
+}
 //### METODOS AUXILIARES
 
 function verifyJWT(req, res, next) {
@@ -138,28 +216,29 @@ async function verifyUserLog(req, res, err, next){
     }
 }
 
-async function GetIdCompany(req, res, err){
-try{
-    
-    //console.log("req.params._id)" + req.params.id);
-    await mongo.connect(url, {
+async function GetIdCompany(req, res, err) {
+    try {
+        //console.log("GetIdCompany: ");
+        let returnObj;
+        //console.log("req.params._id)" + req.params.id);
+        await mongo.connect(url, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         }, (err, client) => {
             if (err) {
-                return  res.status(500).json({message:error_saving});
-            }else{
+                return res.status(500).json({ message: error_saving });
+            } else {
                 const db = client.db('classificae')
                 const collection = db.collection('company')
 
-                 collection.find({"_id" : new objectId(req.params.id)}, { projection: { _id: 0}}).toArray(function(error, result){
-                    if(error){
+                collection.find({ "_id": new objectId(req.params.id) }).toArray(function (error, result) {
+                    if (error) {
                         return res.json(error);
-                    }else{
-                        //console.log("RESULT: " + result);
-                        return res.json(result);
+                    } else {
+                        //console.log("RESULT: " + result);                        
                         client.close();
-                    }
+                        return res.json(result);                        
+                    }                    
                 });
             }
         })
@@ -183,9 +262,9 @@ function insert(req, res, client){
     });
 }
 
-async function update(req, res, client){
+async function update(req, res, client, objLike){
 
-    console.log("update: ")
+    //console.log("valueLike: " + valueLike)
     //TODO:DESCOMENTAR CODIGO A BAIXO
     // if(!verifyUserLog(req, res, err)){
     //     console.log("verifyUserLog:");
@@ -196,7 +275,7 @@ async function update(req, res, client){
     const collection = db.collection('company')
 
     var myquery = { _id: ObjectID(req.body.id) };
-    var newvalues = { $set: req.body };
+    var newvalues = objLike === 'undefined' ? { $set: req.body } : { $set: objLike };
     
     collection.updateOne(
         myquery, newvalues,
@@ -214,5 +293,7 @@ async function update(req, res, client){
 
     });
 }
+
+
 
 module.exports = controller;
