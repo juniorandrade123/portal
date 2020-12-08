@@ -30,7 +30,7 @@ controller.listCompanys = (req, res, next) => {
             const db = client.db('classificae');
             const collection = db.collection('company');
             collection.find({}, { projection: { password: 0} }).toArray((err, items) => {
-                res.status(200).json({'company': items.filter(x => x.active)});
+                res.status(200).json({'company': items.filter(x => x.active && !x.gold)});
               });
           }  
         })
