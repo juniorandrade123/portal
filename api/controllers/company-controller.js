@@ -231,7 +231,7 @@ async function GetIdCompany(req, res, err) {
                 const db = client.db('classificae')
                 const collection = db.collection('company')
 
-                collection.find({ "_id": new objectId(req.params.id) }).toArray(function (error, result) {
+                collection.find({ "_id": new objectId(req.params.id) }, { projection: {'_id': 0} }).toArray(function (error, result) {
                     if (error) {
                         return res.json(error);
                     } else {
@@ -275,7 +275,9 @@ async function update(req, res, client, objLike){
     const collection = db.collection('company')
 
     var myquery = { _id: ObjectID(req.body.id) };
-    var newvalues = objLike === 'undefined' ? { $set: req.body } : { $set: objLike };
+    var newvalues = objLike === undefined ? { $set: req.body } : { $set: objLike };
+
+    console.log(newvalues);
     
     collection.updateOne(
         myquery, newvalues,
